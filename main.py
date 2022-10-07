@@ -10,13 +10,23 @@ import shutil
 path_to_tesseract = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Define path to image
-path_to_images = r"C:\Users\Pedro Muniz\Desktop\João PowerPoint\imagens\\"
+# path_to_images = r"C:\Users\Pedro Muniz\Desktop\João PowerPoint\imagens\\"
 # print(os.listdir(path_to_images))
 
 # Point tessaract_cmd to tessaract.exe
 pytesseract.tesseract_cmd = path_to_tesseract
 
 CWD = os.path.dirname(os.path.realpath(__file__))
+
+path_to_images = CWD + "\\" + "imagens\\"
+
+if not os.path.exists(path_to_images):
+    os.mkdir(path_to_images)
+
+path_to_sort = CWD + "\\" + "sorted\\"
+
+if not os.path.exists(path_to_sort):
+    os.mkdir(path_to_sort)
 
 left_percentage = 60 / 473
 right_percentage = 230 / 473
@@ -43,9 +53,10 @@ def main():
         names.append(text.split("\n")[0])
         images.append(path_to_images + file_name)
 
-        # print(text)
+        print(text)
 
     name_groups, image_groups = sort_names(names, images)
+    print(name_groups)
     save_images(name_groups, image_groups)
 
 
@@ -114,9 +125,12 @@ def levenshtein_distance(token1, token2):
     return distances[len(token1)][len(token2)]
 
 
-# TODO put code to sort names that return "" and take them out of the lists
 def sort_names(names, images):
-    name_groups = [[name] for name in names]
+    name_groups = []
+    for i in range(len(names)):
+        if names[i] == "":
+            names[i] = f"UUUUUUUNNNNNNNKNOWN{i}"
+        name_groups.append([names[i]])
     image_groups = [[image] for image in images]
     taken = [False for _ in names]
     for i in range(len(names)):
@@ -161,15 +175,15 @@ def save_images(names, images):
         # create folder
         folder = ""
         if names[i]:
-            folder = CWD + "\\" + names[i][0]
-            print("FOLDER", folder)
-            os.mkdir(CWD + "\\" + names[i][0])
+            folder = path_to_sort + names[i][0]
+            # print("FOLDER", folder)
+            os.mkdir(folder)
         for j in range(len(names[i])):
-            print("IMAGE PATH", images[i][j])
+            # print("IMAGE PATH", images[i][j])
             src = images[i][j]
             dest = rf"{folder}\\{os.path.basename(images[i][j])}"
-            print("SRC", src)
-            print("DEST", dest)
+            # print("SRC", src)
+            # print("DEST", dest)
             shutil.copyfile(src, dest)
 
 
